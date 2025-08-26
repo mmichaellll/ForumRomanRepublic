@@ -1,15 +1,12 @@
 class Forum:
   def __init__(self):
-    """
-    Perform initialisation of a new forum object, as needed.
-    """
-    pass
+    self.threads = []
   
   def get_threads(self):
     """
     Returns a list of threads in the forum, in the order that they were published.
     """
-    pass
+    return self.threads
   
   def publish(self, title, content, author):
     """
@@ -18,18 +15,33 @@ class Forum:
     Forum threads are stored in the order that they are published.
     Returns the new thread.
     """
-    pass
+    first_post = Post(content, author)
+    thread = Thread(title, first_post)
+    self.threads.append(thread)
+    return thread
   
   def search_by_tag(self, tag):
     """
     Searches all forum threads for any that contain the given tag.
-    Returns a list of matching thread objects in the order they were published.
+    Returns a list of matching thread objects in the order they were published. (currently works oldest -> newest)
     """
-    pass
+    matching_threads = []
+    for thread in self.threads:
+      tags = thread.get_tags()
+      if tag in tags:
+        matching_threads.append(thread)
+    return matching_threads
   
   def search_by_author(self, author):
     """
     Searches all forum threads for posts by the given author.
-    Returns a list of matching post objects in any order you like.
+    Returns a list of matching post objects in any order you like. (currently works oldest -> newest)
     """
-    pass
+    matching_posts = []
+    for thread in self.threads:
+      posts = thread.get_posts()
+      for post in posts:
+        post_author = post.get_author()
+        if post_author == author:
+          matching_posts.append(post)
+    return matching_posts
