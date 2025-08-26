@@ -25,7 +25,7 @@ class Post:
     """
     Returns a single integer representing the total number of upvotes.
     """
-    return len(self.upvotes())
+    return len(list(self.upvotes()))
   
   def set_content(self, content, by_user):
     """
