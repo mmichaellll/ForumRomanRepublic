@@ -10,7 +10,7 @@ class Thread:
 
     self.title = title
     self.first_post = first_post
-    self.owner = first_post.get_author()
+    self.owner = first_post.get_author() 
     self.tags = {}
     self.posts = [first_post]
 
@@ -42,11 +42,7 @@ class Thread:
     """
     Adds the given post object into the list of posts.
     """
-    try:
-      self.posts.append(post)
-      return True
-    except:
-      return False
+    self.posts.append(post)
   
   def remove_post(self, post, by_user):
     """
