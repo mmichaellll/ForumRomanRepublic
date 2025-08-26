@@ -30,7 +30,7 @@ class Thread:
     """
     Returns a alphabetically sorted list of unique tags.
     """
-    return self.tags.sorted()
+    return sorted(self.tags)
   
   def get_posts(self):
     """
