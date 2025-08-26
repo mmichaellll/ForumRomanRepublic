@@ -1,3 +1,6 @@
+from post import Post
+from thread import Thread
+
 class Forum:
   def __init__(self):
     self.threads = []
