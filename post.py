@@ -1,4 +1,4 @@
-from exceptions import PermissionDenied
+from exceptions import PermissionDenied 
 class Post:
   def __init__(self, content, author):
     """
