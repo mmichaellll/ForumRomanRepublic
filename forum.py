@@ -10,7 +10,7 @@ class Forum(Base):
 
   id: Mapped[int] = mapped_column(primary_key=True)
   title: Mapped[str]
-  def __init__(self, title):
+  def __init__(self, title='forum'):
     self.title = title
 
   def get_threads(self):
