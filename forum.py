@@ -1,14 +1,7 @@
-<<<<<<< HEAD
-from post import Post
-from thread import Thread
-
-class Forum:
-  def __init__(self):
-    self.threads = []
-  
-=======
 from base import Base
 from sqlalchemy import select
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from thread import Thread
 from post import Post
 
@@ -20,7 +13,6 @@ class Forum(Base):
   def __init__(self, title):
     self.title = title
 
->>>>>>> d124975 (Made forum ORM i think)
   def get_threads(self):
     """
     Returns a list of threads in the forum, in the order that they were published.
