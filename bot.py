@@ -53,5 +53,5 @@ class ReplyBot():
                 possible_words.add(word)
         if possible_words:
             possible_words = list(possible_words)
-            
+            #pick a random word to start markov chain
     
