@@ -70,7 +70,7 @@ class User(Base):
     
     def check_birthday(self):
         current_date = datetime.datetime.now()
-        birthdate = datetime.datetime(self.birth_yearyear, self.birth_month, self.birth_day)
+        birthdate = datetime.datetime(self.birth_year, self.birth_month, self.birth_day)
         age = current_date - birthdate
         if age.year >= 16:
             return True
