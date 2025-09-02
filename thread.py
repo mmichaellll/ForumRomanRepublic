@@ -1,24 +1,32 @@
 from exceptions import PermissionDenied
+from sqlalchemy.orm import relationship, mapped_column, Mapped
+from sqlalchemy import ForeignKey, DateTime
+from base import Base
+from typing import Optional
+from sqlalchemy import select
+from sqlalchemy.sql import func
 
-class Thread:
-  def __init__(self, title, first_post):
-    """
-    Creates a new thread with a title and an initial first post.
-    The author of the first post is also the owner of the thread.
-    The owner cannot change once the thread is created.
-    """
 
-    self.title = title
-    self.first_post = first_post
-    self.owner = first_post.get_author() 
-    self.tags = {}
-    self.posts = [first_post]
+class ThreadPostLink(Base):
+  __tablename__ = "threadpostlink"
+  threadid: Mapped[int] = mapped_column(ForeignKey("thread.id"), primary_key=True)
+  postid: Mapped[int] = mapped_column(ForeignKey("post.id"), primary_key=True)
+
+
+class Thread(Base):
+  __tablename__ = "thread"
+  
+  id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+  title: Mapped[str]
+  owner: Mapped[str]
+  tags: Mapped[Optional[str]]
+  datetime: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=func.now())
 
   def get_owner(self):
     """
     Returns the owner of the thread.
     """
-    return self.first_post.get_author()
+    return self.owner
   
   def get_title(self):
     """
@@ -30,31 +38,45 @@ class Thread:
     """
     Returns a alphabetically sorted list of unique tags.
     """
-    return sorted(self.tags)
+    if not self.tags:
+      return []
+    return sorted(set(tag.strip() for tag in self.tags.split(",") if tag.strip()))
   
-  def get_posts(self):
+  def get_posts(self,session):
     """
     Returns a list of posts in this thread, in the order they were published.
     """
-    return self.posts
+    from post import Post  
+    query = select(Post).join(ThreadPostLink, ThreadPostLink.postid == Post.id).where(ThreadPostLink.threadid == self.id).order_by(Post.datetime)
+    return session.execute(query).scalars().all()
   
-  def publish_post(self, post):
+  def publish_post(self, post, session):
     """
     Adds the given post object into the list of posts.
     """
-    self.posts.append(post)
+    query = select(ThreadPostLink).where(ThreadPostLink.threadid == self.id).where(ThreadPostLink.postid == post.id)
+    existing = session.execute(query).scalar_one_or_none()
+
+    if not existing:
+      link = ThreadPostLink(threadid = self.id, postid=post.id)
+      session.add(link)
   
-  def remove_post(self, post, by_user):
+  def remove_post(self, post, by_user, session):
     """
     Allows the given user to remove the post from this thread.
     Does nothing if the post is not in this thread.
     * raises PermissionDenied if the given user is not the author of the post.
     """
-    if post in self.posts and post.get_author() == by_user:
-      self.posts.remove(post)
+    if post.get_author() != by_user:
+      raise PermissionDenied
+    query = select(ThreadPostLink).where(ThreadPostLink.threadid == self.id).where(ThreadPostLink.postid == post.id)
+    link = session.execute(query).scalar_one_or_none()
+    if link:
+      session.delete(link)
       return True
-    else:
-      raise PermissionDenied()        
+    return False
+
+
 
   def set_title(self, title, by_user):
     """
@@ -62,17 +84,15 @@ class Thread:
     * raises PermissionDenied if the given user is not the owner of the thread.
     """
   
-    if self.get_owner() == by_user:
-      self.title = title
-    else:
-      raise PermissionDenied()
+    if self.get_owner() != by_user:
+      raise PermissionDenied
+    self.title = title
   
   def set_tags(self, tag_list, by_user):
     """
     Allows the given user to replace the thread tags (list of strings).
     * raises PermissionDenied if the given user is not the owner of the thread.
     """
-    if self.get_owner() == by_user:
-      self.tags = tag_list
-    else:
-      raise PermissionDenied()
+    if self.get_owner() != by_user:
+      raise PermissionDenied
+    self.tags = ",".join(tag_list) if tag_list else None
