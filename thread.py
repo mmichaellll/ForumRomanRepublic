@@ -5,7 +5,6 @@ from base import Base
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.sql import func
-import datetime
 
 
 class ThreadPostLink(Base):
@@ -21,7 +20,7 @@ class Thread(Base):
   title: Mapped[str]
   owner: Mapped[str]
   tags: Mapped[Optional[str]]
-  datetime: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=func.now())
+  datetime: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
   def get_owner(self):
     """
