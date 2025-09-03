@@ -3,29 +3,47 @@ import random
 from random import choice
 
 class ReplyBot():
+
+    f'''
+    So, to use the bot you need to initialise it with a name and a keyword. Name dictates what text file is used
+    to generate text via markov chains. a bot called 'senator' will use senator.txt, etc. Keyword iw what the bot
+    will check for in posts to see if it should respond. just run bot.do_stuff(thread object, post object) to auto
+    do stuff everything including checking a post, generating content for the post, and posting the response in
+    the thread.
+    '''
+    
     def __init__(self, name, keyword):
         self.name=name
         self.keyword=keyword.lower()
         self.path = f'markov/{name}.txt'
         self.markov_dict = self.make_dictionary()
+
     def get_name(self):
         return self.name
+
     def get_keyword(self):
         return self.keyword
+
     def get_path(self):
         return self.path
+
     def get_markov_dict(self):
         return self.markov_dict
+
     def set_name(self, name):
         self.name = name
+
     def set_keyword(self, keyword):
         self.keyword = keyword.lower()
+
     def check_post(self, post):
         if self.get_keyword() in post.get_content().lower():
             return True
         return False
+
     def pub_to_thread(self, content, thread):
         thread.publish_post(Post(content, self.get_name()))
+
     def make_dictionary(self):
         good_words = []
         with open(self.get_path(), 'r') as f:
@@ -46,6 +64,7 @@ class ReplyBot():
             if i+1 < len(good_words):
                 dictionary[word].append(good_words[i+1])
         return dictionary
+
     def make_content(self, post):
         possible_words = set()
         for word in post.get_content():
@@ -78,6 +97,12 @@ class ReplyBot():
             x = string.split(' ')[-1].strip('.')
             start = True
         return string
+
     def make_reply(self, post, thread):
         content = self.make_content(post)
         self.pub_to_thread(content, thread)
+
+    def do_stuff(self, post, thread):
+        if self.check_post(poast):
+            self.make_reply(self, post, thread)
+
