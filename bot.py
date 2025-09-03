@@ -6,7 +6,7 @@ class ReplyBot():
     def __init__(self, name, keyword):
         self.name=name
         self.keyword=keyword.lower()
-        self.path = f'/markov text stuffs <33/{name}'
+        self.path = f'markov/{name}.txt'
         self.markov_dict = self.make_dictionary()
     def get_name(self):
         return self.name
@@ -29,16 +29,16 @@ class ReplyBot():
     def make_dictionary(self):
         good_words = []
         with open(self.get_path(), 'r') as f:
-        words = f.readlines()
-        words = [i.strip('\n').split(' ') for i in words]
-        for line in words:
-            for word in line:
-                if word:
-                    if '.' in word:
-                        good_words.append(word.lower().strip('''.!?,_;:-"'''))
-                        good_words.append('.')
-                    else:
-                        good_words.append(word.lower().strip('''!?,_:;-"'''))
+            words = f.readlines()
+            words = [i.strip('\n').split(' ') for i in words]
+            for line in words:
+                for word in line:
+                    if word:
+                        if '.' in word:
+                            good_words.append(word.lower().strip('''.!?,_;:-"'''))
+                            good_words.append('.')
+                        else:
+                            good_words.append(word.lower().strip('''!?,_:;-"'''))
         dictionary = {}
         for i, word in enumerate(good_words):
             if word not in dictionary:
@@ -49,9 +49,35 @@ class ReplyBot():
     def make_content(self, post):
         possible_words = set()
         for word in post.get_content():
-            if word in get_markov_dict():
+            if word in self.get_markov_dict():
                 possible_words.add(word)
         if possible_words:
             possible_words = list(possible_words)
-            #pick a random word to start markov chain
-    
+        else:
+            possible_words = list(self.get_markov_dict().keys())
+        x = choice(possible_words)
+        string = ''
+        start = False
+        cap = True
+        for i in range(random.randint(3, 10)):
+            while x != '.':
+                if not start:
+                    if cap:
+                        x = x.capitalize()
+                        cap = False
+                    string = string + (f" {x}")
+                x = x.lower()
+
+                x = choice(self.get_markov_dict()[x])
+                if start == True:
+                    while x == '.':
+                        x = choice(self.get_markov_dict()[x])
+                    start = False
+                    cap = True
+            string += '.'
+            x = string.split(' ')[-1].strip('.')
+            start = True
+        return string
+    def make_reply(self, post, thread):
+        content = self.make_content(post)
+        self.pub_to_thread(content, thread)
