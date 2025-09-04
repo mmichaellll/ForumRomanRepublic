@@ -1,4 +1,5 @@
 from post import Post
+from user import User
 import random
 from random import choice
 
@@ -12,15 +13,23 @@ class ReplyBot():
     the thread.
     '''
 
-    def __init__(self, name, keyword):
-        self.name=name
-        self.keyword=keyword.lower()
+    def __init__(self, name):
+        self.name=name.lower()
+        self.keyword=f'@{self.name}'
         self.path = f'markov/{name}.txt'
         self.markov_dict = self.make_dictionary()
+        account = select(User).where(User.email == f'{self.get_name()}@replybot.nc')
+        if account:
+            self.user = account
+        else:
+            self.user = self.make_account()
 
     def get_name(self):
         return self.name
-
+    
+    def make_account(self):
+        account = User(f'{self.get_name()}@replybot.nc', '01110100 01101000 01100101 01110010 011001010 01100001 01110010 01100101 00110011 01110011 01101110 01101001 01110000 01100101 01110010 01110011 01110100 01110010 01100001 01101001 01101110 01100101 01100100 01101111 01101110 01111001 01101111 01110101 01110010 01100101 01111000 01100001 01100011 01110100 01101100 01101111 01100011 01100001 01110100 01101001 01101111 01101110', self.get_name(), 'Bot' 110100101101000, 11100001110011, 111000101101100)
+        return account
     def get_keyword(self):
         return self.keyword
 
@@ -31,7 +40,7 @@ class ReplyBot():
         return self.markov_dict
 
     def set_name(self, name):
-        self.name = name
+        self.name = name.lower()
 
     def set_keyword(self, keyword):
         self.keyword = keyword.lower()
