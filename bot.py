@@ -2,6 +2,10 @@ from post import Post
 from user import User
 import random
 from random import choice
+from flask import Flask, session, redirect, url_for, request, render_template
+from sqlalchemy import select
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 
 class ReplyBot():
 
@@ -29,7 +33,10 @@ class ReplyBot():
     
     def make_account(self):
         account = User(f'{self.get_name()}@replybot.nc', '01110100 01101000 01100101 01110010 011001010 01100001 01110010 01100101 00110011 01110011 01101110 01101001 01110000 01100101 01110010 01110011 01110100 01110010 01100001 01101001 01101110 01100101 01100100 01101111 01101110 01111001 01101111 01110101 01110010 01100101 01111000 01100001 01100011 01110100 01101100 01101111 01100011 01100001 01110100 01101001 01101111 01101110', self.get_name(), 'Bot' 110100101101000, 11100001110011, 111000101101100)
+        session.add(account)
+        session.commit()
         return account
+
     def get_keyword(self):
         return self.keyword
 
@@ -51,7 +58,11 @@ class ReplyBot():
         return False
 
     def pub_to_thread(self, content, thread):
-        thread.publish_post(Post(content, self.get_name()))
+        new_post = Post(content, self.get_name())
+        session.add(new_post)
+        session.commit()
+        thread.publish_post(new_post, session)
+        session.commit()
 
     def make_dictionary(self):
         good_words = []
@@ -112,7 +123,7 @@ class ReplyBot():
         self.pub_to_thread(content, thread)
 
     def do_stuff(self, post, thread):
-        if self.check_post(poast):
+        if self.check_post(post):
             self.make_reply(self, post, thread)
 #citizen = ReplyBot('citizen', 'a')
 #print(citizen.make_content(Post('q', 'a')))
