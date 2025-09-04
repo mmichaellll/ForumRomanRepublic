@@ -19,13 +19,14 @@ class Thread(Base):
   id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   title: Mapped[str]
   owner: Mapped[str]
-  tags: Mapped[Optional[str]]
-  datetime: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+  tags: Mapped[Optional[str]] = mapped_column(default=None)
+  created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+  first_post: Mapped[int] = mapped_column(ForeignKey("post.id"))
 
-  def __init__(self,title,first_post):
+  def __init__(self, title, first_post):
     self.title = title
-    self.first_post = first_post
-    self.owner = self.first_post.get_author()
+    self.first_post = first_post.id
+    self.owner = first_post.get_author()
 
   def get_owner(self):
     """

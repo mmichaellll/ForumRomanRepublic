@@ -20,35 +20,37 @@ if __name__ == '__main__':
   session = Session()
   Base.metadata.create_all(engine)
   forum = Forum()
-  thread = forum.publish('Battle of Zela', 'Veni, vidi, vici!', 'Caesar')
-  thread.set_tags(['battle', 'brag'], 'Caesar')
-  new_post = Post('That was quick!', 'Amantius')
-  session.add(new_post)
-  session.commit()
-  thread.publish_post(new_post, session)
-  session.commit()
-  new_post = Post('Hardly broke a sweat.', 'Caesar')
-  session.add(new_post)
-  session.commit()
-  thread.publish_post(new_post,session)
-  session.commit()
-  new_post = Post('Any good loot?', 'Amantius')
-  session.add(new_post)
-  session.commit()
-  thread.publish_post(new_post,session)
-  session.commit()
+  first_post = Post('Veni, vidi, vici!', 'Caesar')
+  session.add(first_post)
+  session.flush()
 
-  # Search by author
+  thread = forum.publish('Battle of Zela', first_post, 'Caesar')
+  session.add(thread)
+  session.flush()
+  thread.set_tags(['battle', 'brag'], 'Caesar')
+
+  thread.publish_post(first_post, session)
+
+  posts = [
+    Post('That was quick!', 'Amantius'),
+    Post('Hardly broke a sweat.', 'Caesar'),
+    Post('Any good loot?', 'Amantius')
+  ]
+  for post in posts:
+    session.add(post)
+    session.flush()  
+    thread.publish_post(post, session)
+
+  session.commit()  
+
   print("The contents of Caesar's posts:")
   caesar_posts = forum.search_by_author('Caesar')
   print(sorted([p.get_content() for p in caesar_posts]))
   print()
 
-  # Edit content of an existing post
-  existing = thread.get_posts()[0]
+  existing = thread.get_posts(session)[0]
   existing.set_content('I came, I saw, I conquered!', 'Caesar')
 
-  # Upvote a post:
   existing.upvote('Cleopatra')
   existing.upvote('Brutus')
   existing.upvote('Amantius')
