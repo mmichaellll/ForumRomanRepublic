@@ -11,7 +11,7 @@ class ReplyBot():
     do stuff everything including checking a post, generating content for the post, and posting the response in
     the thread.
     '''
-    
+
     def __init__(self, name, keyword):
         self.name=name
         self.keyword=keyword.lower()
@@ -105,4 +105,5 @@ class ReplyBot():
     def do_stuff(self, post, thread):
         if self.check_post(poast):
             self.make_reply(self, post, thread)
-
+#citizen = ReplyBot('citizen', 'a')
+#print(citizen.make_content(Post('q', 'a')))
