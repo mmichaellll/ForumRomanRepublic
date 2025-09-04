@@ -2,7 +2,7 @@ from exceptions import PermissionDenied
 from forum import Forum
 from thread import Thread
 from post import Post
-from base import Session
+from base import Session, create_db
 
 # You can put any testing code (that won't be run by the marker)
 # in the block below.
@@ -11,6 +11,7 @@ from base import Session
 if __name__ == '__main__':
   # Test your code here. This will not be checked by the marker.
   # Here is the example from the question.
+  create_db()
   session = Session()
   forum = Forum()
   thread = forum.publish('Battle of Zela', 'Veni, vidi, vici!', 'Caesar')
@@ -34,6 +35,8 @@ if __name__ == '__main__':
   existing.upvote('Brutus')
   existing.upvote('Amantius')
   existing.upvote('Cleopatra')
+
+
 
   print("[{}](+{}) -- {}\n".format(
     existing.get_author(),
