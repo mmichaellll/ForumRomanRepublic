@@ -5,7 +5,7 @@ from base import Base
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.sql import func
-
+from datetime import datetime
 
 class ThreadPostLink(Base):
   __tablename__ = "threadpostlink"

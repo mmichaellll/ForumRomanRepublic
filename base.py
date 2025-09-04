@@ -1,9 +1,4 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
 
-engine = create_engine("sqlite:///forum.db")
-Session = sessionmaker(bind=engine)
+from sqlalchemy.orm import declarative_base
+
 Base = declarative_base()
-
-def create_db():
-    Base.metadata.create_all(engine)
