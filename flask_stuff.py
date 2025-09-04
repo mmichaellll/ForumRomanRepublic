@@ -1,4 +1,5 @@
 from flask import Flask, session, redirect, url_for, request, render_template
+from datetime import timedelta
 from user import User
 
 app = Flask(__name__, static_folder='static', template_folder='static/templates') 
@@ -24,6 +25,14 @@ def register():
         session['user'] = User(email, pwd, fname, lname, year, month, day)
         return redirect('/')
     return render_template('register.html')
+
+@app.route('/forum/<id>', methods=['GET', 'POST'])
+def forum(id):
+    return render_template('forum.html', id, title, threads)
+
+@app.route('/thread/<id>', methods=['GET', 'POST'])
+def thread(id):
+    return render_template('thread.html', id, title, posts)
 
 if __name__ == '__main__': 
     app.run(debug=True) 
