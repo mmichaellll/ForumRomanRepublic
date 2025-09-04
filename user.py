@@ -72,7 +72,7 @@ class User(Base):
         current_date = datetime.datetime.now()
         birthdate = datetime.datetime(self.birth_year, self.birth_month, self.birth_day)
         age = current_date - birthdate
-        if age.year >= 16:
+        if age.days >= 16*365: # age is a datetime.timedelta object and only has days, check if age is more than 16*365 days
             return True
         else:
             return False
