@@ -1,7 +1,12 @@
 from exceptions import PermissionDenied
 from forum import Forum
-from thread import Thread
-from post import Post
+from thread import Thread, ThreadPostLink
+from post import Post, PostUpvotes
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from user import User
+from base import Base
+
 
 # You can put any testing code (that won't be run by the marker)
 # in the block below.
@@ -10,12 +15,16 @@ from post import Post
 if __name__ == '__main__':
   # Test your code here. This will not be checked by the marker.
   # Here is the example from the question.
+  engine = create_engine("sqlite:///forum.db")
+  Session = sessionmaker(bind=engine)
+  session = Session()
+  Base.metadata.create_all(engine)
   forum = Forum()
   thread = forum.publish('Battle of Zela', 'Veni, vidi, vici!', 'Caesar')
   thread.set_tags(['battle', 'brag'], 'Caesar')
-  thread.publish_post(Post('That was quick!', 'Amantius'))
-  thread.publish_post(Post('Hardly broke a sweat.', 'Caesar'))
-  thread.publish_post(Post('Any good loot?', 'Amantius'))
+  thread.publish_post(Post('That was quick!', 'Amantius'),session)
+  thread.publish_post(Post('Hardly broke a sweat.', 'Caesar'),session)
+  thread.publish_post(Post('Any good loot?', 'Amantius'),session)
 
   # Search by author
   print("The contents of Caesar's posts:")
@@ -32,6 +41,8 @@ if __name__ == '__main__':
   existing.upvote('Brutus')
   existing.upvote('Amantius')
   existing.upvote('Cleopatra')
+
+
 
   print("[{}](+{}) -- {}\n".format(
     existing.get_author(),
