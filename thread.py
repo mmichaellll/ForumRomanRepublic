@@ -22,6 +22,11 @@ class Thread(Base):
   tags: Mapped[Optional[str]]
   datetime: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
+  def __init__(self,title,first_post):
+    self.title = title
+    self.first_post = first_post
+    self.owner = self.first_post.get_author()
+
   def get_owner(self):
     """
     Returns the owner of the thread.
@@ -46,7 +51,7 @@ class Thread(Base):
     """
     Returns a list of posts in this thread, in the order they were published.
     """
-    from post import Post  
+    from post import Post
     query = select(Post).join(ThreadPostLink, ThreadPostLink.postid == Post.id).where(ThreadPostLink.threadid == self.id).order_by(Post.datetime)
     return session.execute(query).scalars().all()
   
