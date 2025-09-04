@@ -1,9 +1,11 @@
 from exceptions import PermissionDenied 
 from base import Base
-from sqlalchemy import select, update, where, ForeignKey, DateTime
+from sqlalchemy import select, update, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from datetime import datetime
 
 class PostUpvotes(Base):
   __tablename__ = 'postupvotes'
