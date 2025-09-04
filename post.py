@@ -1,5 +1,27 @@
 from exceptions import PermissionDenied 
-class Post:
+from base import Base
+from sqlalchemy import select, update, ForeignKey, DateTime
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from datetime import datetime
+
+class PostUpvotes(Base):
+  __tablename__ = 'postupvotes'
+
+  post_id: Mapped[int] = mapped_column(ForeignKey("post.id"), primary_key=True)
+  user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
+
+
+class Post(Base):
+  __tablename__ = 'post'
+
+  id: Mapped[int] = mapped_column(primary_key=True)
+  date: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+  author: Mapped[str]
+  content: Mapped[str]
+
   def __init__(self, content, author):
     """
     Creates a new thread with a title and an initial first post.
@@ -8,7 +30,6 @@ class Post:
     """
     self.content = content
     self.author = author
-    self.upvotes = set()
   
   def get_author(self):
     """
@@ -26,6 +47,7 @@ class Post:
     """
     Returns a single integer representing the total number of upvotes.
     """
+    # update when upvote linking table is made
     return len(list(self.upvotes()))
   
   def set_content(self, content, by_user):
@@ -33,7 +55,7 @@ class Post:
     Called when the given user wants to update the content.
     * raises PermissionDenied if the given user is not the author.
     """
-    if by_user == self.author:
+    if by_user == self.get_author():
       self.content = content
     else:
       raise(PermissionDenied)
@@ -43,4 +65,5 @@ class Post:
     Called when the given user wants to upvote this post.
     A user can only perform an up vote *once*.
     """
+    # will need to be updated when post-upvote linking table is made
     self.upvotes.add(by_user)
