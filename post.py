@@ -1,6 +1,6 @@
 from exceptions import PermissionDenied 
 from base import Base
-from sqlalchemy import select, update, ForeignKey, DateTime
+from sqlalchemy import select, update, ForeignKey, DateTime, insert
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
@@ -13,6 +13,9 @@ class PostUpvotes(Base):
   post_id: Mapped[int] = mapped_column(ForeignKey("post.id"), primary_key=True)
   user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
 
+  def __init__(self, post_id, user_id):
+    self.post_id = post_id
+    self.user_id = user_id
 
 class Post(Base):
   __tablename__ = 'post'
@@ -57,6 +60,7 @@ class Post(Base):
     """
     if by_user == self.get_author():
       self.content = content
+      return "Changed Content"
     else:
       raise(PermissionDenied)
   
@@ -65,5 +69,9 @@ class Post(Base):
     Called when the given user wants to upvote this post.
     A user can only perform an up vote *once*.
     """
-    # will need to be updated when post-upvote linking table is made
-    self.upvotes.add(by_user)
+    status = select(PostUpvotes).where(PostUpvotes.post_id == self.id, PostUpvotes.user_id == by_user)
+    if status:
+      return "Already upvoted this post"
+    else:
+      PostUpvotes(self.id, by_user)
+      return "Successfully upvoted the post"
