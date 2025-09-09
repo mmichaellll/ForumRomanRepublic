@@ -17,7 +17,7 @@ class PostUpvotes(Base):
 class Post(Base):
   __tablename__ = 'post'
 
-  id: Mapped[int] = mapped_column(primary_key=True)
+  id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   date: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
   author: Mapped[str]
   content: Mapped[str]
@@ -47,8 +47,8 @@ class Post(Base):
     """
     Returns a single integer representing the total number of upvotes.
     """
-    # update when upvote linking table is made
-    return len(list(self.upvotes()))
+
+    return len(select(PostUpvotes.user_id).join(Post, PostUpvotes.post_id == Post.id).where(PostUpvotes.post_id == self.id).order_by(Post.datetime))
   
   def set_content(self, content, by_user):
     """
