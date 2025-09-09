@@ -46,6 +46,9 @@ class ReplyBot():
     def get_markov_dict(self):
         return self.markov_dict
 
+    def get_account(self):
+        return self.account
+
     def set_name(self, name):
         self.name = name.lower()
 
@@ -58,7 +61,7 @@ class ReplyBot():
         return False
 
     def pub_to_thread(self, content, thread):
-        new_post = Post(content, self.get_name())
+        new_post = Post(content, self.get_account())
         session.add(new_post)
         session.commit()
         thread.publish_post(new_post, session)
