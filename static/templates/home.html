@@ -2,9 +2,8 @@
 {% block main %}
     <p>Home page</p>
 
-    {% for post in thread %}
-        
-
+    {% for forum in forums %}
+        <a href="https://www.{{forum.id}}.com" class="post_link"> forum.title </a>
     {% endfor %}
 
 

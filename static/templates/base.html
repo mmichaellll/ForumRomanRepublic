@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <html>
-    <h1>Forum of the Roman Rebublic</h1>
-    {% block main %}
-        <p>Stuff here</p>
 
-    {% endblock %}
+    <link rel="stylesheet" href="styles.css">
+    <div id="background"></div>
+
+
+    <h1>Forum of the Roman Rebublic</h1>
+
+    <div id="username"> 
+        <h1>{{ username }}</h1>
+    </div>
+
+    <div id="scroll">
+        {% block main %}
+            <p>Stuff here</p>
+
+        {% endblock %}
+    </div>
+
+
+
 </html>
 
 
