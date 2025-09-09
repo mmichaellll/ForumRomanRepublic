@@ -61,7 +61,7 @@ class ReplyBot():
         return False
 
     def pub_to_thread(self, content, thread):
-        new_post = Post(content, self.get_name())
+        new_post = Post(content, self.get_account())
         session.add(new_post)
         session.commit()
         thread.publish_post(new_post, session)
