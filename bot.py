@@ -46,6 +46,9 @@ class ReplyBot():
     def get_markov_dict(self):
         return self.markov_dict
 
+    def get_account(self):
+        return self.account
+
     def set_name(self, name):
         self.name = name.lower()
 
