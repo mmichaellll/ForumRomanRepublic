@@ -20,21 +20,30 @@ if __name__ == '__main__':
   session = Session()
   Base.metadata.create_all(engine)
   forum = Forum()
-  first_post = Post('Veni, vidi, vici!', 'Caesar')
+  caesar = User('caesar@rome.com', 'venividivici7', 'Julius', 'Caesar', 1, 7, 12) #technically born 100 BC but that doesn't work
+  cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
+  brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
+  session.add_all([caesar, cleopatra, brutus])
+  session.flush()
+
+  #re-make users to get ids and stuff
+  caesar = session.query(User).filter_by(lname="Caesar").first()
+  cleopatra = session.query(User).filter_by(fname='Cleopatra').first()
+  brutus = session.query(User).filter_by(lname='Brutus').first()
+  first_post = Post('Veni, vidi, vici!', caesar)
   session.add(first_post)
   session.flush()
 
-  thread = forum.publish('Battle of Zela', first_post, 'Caesar')
+  thread = forum.publish('Battle of Zela', first_post, caesar)
   session.add(thread)
   session.flush()
-  thread.set_tags(['battle', 'brag'], 'Caesar')
+  thread.set_tags(['battle', 'brag'], caesar)
 
   thread.publish_post(first_post, session)
 
   posts = [
-    Post('That was quick!', 'Amantius'),
-    Post('Hardly broke a sweat.', 'Caesar'),
-    Post('Any good loot?', 'Amantius')
+    Post('Hardly broke a sweat.', caesar),
+    Post('I\'m Cleopatra', cleopatra)
   ]
   for post in posts:
     session.add(post)
@@ -49,12 +58,11 @@ if __name__ == '__main__':
   print()
 
   existing = thread.get_posts(session)[0]
-  existing.set_content('I came, I saw, I conquered!', 'Caesar')
+  existing.set_content('I came, I saw, I conquered!', caesar)
 
-  existing.upvote('Cleopatra')
-  existing.upvote('Brutus')
-  existing.upvote('Amantius')
-  existing.upvote('Cleopatra')
+  existing.upvote(cleopatra)
+  existing.upvote(brutus)
+  existing.upvote(cleopatra)
 
 
 
@@ -66,6 +74,6 @@ if __name__ == '__main__':
 
   # And some access control:
   try:
-    thread.set_title('Hijacked!', 'Cleopatra')
+    thread.set_title('Hijacked!', cleopatra)
   except PermissionDenied:
     print('Cleopatra was not allowed to hijack the thread.')

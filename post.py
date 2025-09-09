@@ -1,5 +1,6 @@
 from exceptions import PermissionDenied 
 from base import Base
+from user import User
 from sqlalchemy import select, update, ForeignKey, DateTime, insert
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -22,7 +23,7 @@ class Post(Base):
 
   id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   date: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
-  author: Mapped[str]
+  author: Mapped[int] #user id
   content: Mapped[str]
 
   def __init__(self, content, author):
@@ -32,13 +33,13 @@ class Post(Base):
     The owner cannot change once the thread is created.
     """
     self.content = content
-    self.author = author
+    self.author = author.get_id()
   
   def get_author(self):
     """
-    Returns the author of the post.
+    Returns the author of the post (user object)
     """
-    return self.author
+    return select(User).where(User.id == self.author)
   
   def get_content(self):
     """
