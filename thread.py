@@ -6,7 +6,6 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.sql import func
 from datetime import datetime
-from base import session
 from user import User
 from post import Post
 
@@ -60,14 +59,14 @@ class Thread(Base):
       return []
     return sorted(set(tag.strip() for tag in self.tags.split(",") if tag.strip()))
   
-  def get_posts(self):
+  def get_posts(self, session):
     """
     Returns a list of posts in this thread, in the order they were published.
     """
     query = select(Post).join(Thread).where(ThreadPostLink.threadid == self.id).order_by(Post.date)
     return session.execute(query).scalars().all()
   
-  def publish_post(self, post):
+  def publish_post(self, post, session):
     """
     Adds the given post object into the list of posts.
     """

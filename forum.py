@@ -4,7 +4,6 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from thread import Thread
 from post import Post
-from base import session
 
 class Forum(Base):
   __tablename__ = 'forum'
@@ -17,11 +16,11 @@ class Forum(Base):
   def get_id(self):
     return self.id
   
-  def get_threads(self):
+  def get_threads(self, session):
     """
     Returns a list of threads in the forum, in the order that they were published.
     """
-    threads = select(Thread).where(Thread.forum_id == self.id)
+    threads = session.execute(select(Thread).where(Thread.forum_id == self.id)).all()
     return threads
   
   def publish(self, title, first_post, author):
@@ -46,13 +45,13 @@ class Forum(Base):
         matching_threads.append(thread)
     return matching_threads
   
-  def search_by_author(self, author):
+  def search_by_author(self, author, session):
     """
     Searches all forum threads for posts by the given author.
     Returns a list of matching post objects in any order you like. (currently works oldest -> newest)
     """
     matching_posts = []
-    for thread in self.get_threads():
+    for thread in self.get_threads(session):
       posts = thread.get_posts()
       for post in posts:
         post_author = post.get_author()

@@ -3,8 +3,10 @@ from forum import Forum
 from thread import Thread, ThreadPostLink
 from post import Post, PostUpvotes
 from user import User
-from base import session
 from forum import Forum
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from base import Base
 
 # You can put any testing code (that won't be run by the marker)
 # in the block below.
@@ -13,6 +15,10 @@ from forum import Forum
 if __name__ == '__main__':
   # Test your code here. This will not be checked by the marker.
   # Here is the example from the question.
+  engine = create_engine("sqlite:///forum.db")
+  Session = sessionmaker(bind=engine)
+  session = Session()
+  Base.metadata.create_all(engine)
   forum = Forum()
   caesar = User('caesar@rome.com', 'venividivici7', 'Julius', 'Caesar', 1, 7, 12) #technically born 100 BC but that doesn't work
   cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
@@ -36,11 +42,11 @@ if __name__ == '__main__':
   print(first_post_temp.get_id())
   thread = forum.publish('Battle of Zela', first_post, caesar)
   session.add(thread)
-  print(thread.get_posts())
+  print(thread.get_posts(session))
   session.flush()
   thread.set_tags(['battle', 'brag'], caesar)
 
-  thread.publish_post(first_post)
+  thread.publish_post(first_post, session)
 
   posts = [
     Post('Hardly broke a sweat.', caesar),
@@ -49,12 +55,12 @@ if __name__ == '__main__':
   for post in posts:
     session.add(post)
     session.flush()  
-    thread.publish_post(post)
+    thread.publish_post(post, session)
 
   session.commit()  
 
   print("The contents of Caesar's posts:")
-  caesar_posts = forum.search_by_author('Caesar')
+  caesar_posts = forum.search_by_author('Caesar', session)
   print(sorted([p.get_content() for p in caesar_posts]))
   print()
 
