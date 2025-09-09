@@ -19,13 +19,14 @@ class Thread(Base):
   id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   title: Mapped[str]
   owner: Mapped[str]
-  tags: Mapped[Optional[str]]
-  datetime: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+  tags: Mapped[Optional[str]] = mapped_column(default=None)
+  created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+  first_post: Mapped[int] = mapped_column(ForeignKey("post.id"))
 
-  def __init__(self,title,first_post):
+  def __init__(self, title, first_post):
     self.title = title
-    self.first_post = first_post
-    self.owner = self.first_post.get_author()
+    self.first_post = first_post.id
+    self.owner = first_post.get_author()
 
   def get_owner(self):
     """
@@ -52,13 +53,15 @@ class Thread(Base):
     Returns a list of posts in this thread, in the order they were published.
     """
     from post import Post
-    query = select(Post).join(ThreadPostLink, ThreadPostLink.postid == Post.id).where(ThreadPostLink.threadid == self.id).order_by(Post.datetime)
+    query = select(Post).join(ThreadPostLink, ThreadPostLink.postid == Post.id).where(ThreadPostLink.threadid == self.id).order_by(Post.date)
     return session.execute(query).scalars().all()
   
   def publish_post(self, post, session):
     """
     Adds the given post object into the list of posts.
     """
+    print(f"PostID: {post.id}, PostDT: {post.date}")
+    print(f"SelfID: {self.id}")
     query = select(ThreadPostLink).where(ThreadPostLink.threadid == self.id).where(ThreadPostLink.postid == post.id)
     existing = session.execute(query).scalar_one_or_none()
 
