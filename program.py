@@ -3,8 +3,8 @@ from forum import Forum
 from thread import Thread, ThreadPostLink
 from post import Post, PostUpvotes
 from user import User
-from setup import session
-
+from base import session
+from forum import Forum
 
 # You can put any testing code (that won't be run by the marker)
 # in the block below.
@@ -18,6 +18,7 @@ if __name__ == '__main__':
   cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
   brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
   session.add_all([caesar, cleopatra, brutus])
+  session.add(forum)
   session.flush()
 
   #re-make users to get ids and stuff
@@ -39,7 +40,7 @@ if __name__ == '__main__':
   session.flush()
   thread.set_tags(['battle', 'brag'], caesar)
 
-  thread.publish_post(first_post, session)
+  thread.publish_post(first_post)
 
   posts = [
     Post('Hardly broke a sweat.', caesar),

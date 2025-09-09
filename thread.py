@@ -6,7 +6,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.sql import func
 from datetime import datetime
-from setup import session
+from base import session
 from user import User
 from post import Post
 
@@ -24,14 +24,16 @@ class Thread(Base):
   id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   title: Mapped[str]
   owner: Mapped[int]
+  forum_id: Mapped[int]
   tags: Mapped[Optional[str]] = mapped_column(default=None)
   created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
   first_post: Mapped[int] = mapped_column(ForeignKey("post.id"))
 
-  def __init__(self, title, first_post):
+  def __init__(self, title, first_post, forum_id):
     self.title = title
     self.first_post = first_post.get_id()
     self.owner = first_post.get_author()
+    self.forum_id = forum_id
     print(first_post)
     print(first_post.get_id())
 
@@ -62,7 +64,7 @@ class Thread(Base):
     """
     Returns a list of posts in this thread, in the order they were published.
     """
-    query = select(Post).join(Thread.threadid).where(ThreadPostLink.threadid == self.id).order_by(Post.date)
+    query = select(Post).join(Thread).where(ThreadPostLink.threadid == self.id).order_by(Post.date)
     return session.execute(query).scalars().all()
   
   def publish_post(self, post):
@@ -101,7 +103,7 @@ class Thread(Base):
     * raises PermissionDenied if the given user is not the owner of the thread.
     """
   
-    if self.get_owner() != by_user:
+    if self.get_owner() != by_user.get_id():
       raise PermissionDenied
     self.title = title
   
@@ -110,6 +112,6 @@ class Thread(Base):
     Allows the given user to replace the thread tags (list of strings).
     * raises PermissionDenied if the given user is not the owner of the thread.
     """
-    if self.get_owner() != by_user:
+    if self.get_owner() != by_user.get_id():
       raise PermissionDenied
     self.tags = ",".join(tag_list) if tag_list else None

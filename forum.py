@@ -4,15 +4,19 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from thread import Thread
 from post import Post
+from base import session
 
 class Forum(Base):
   __tablename__ = 'forum'
 
-  id: Mapped[int] = mapped_column(primary_key=True)
+  id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   title: Mapped[str]
   def __init__(self, title='forum'):
     self.title = title
 
+  def get_id(self):
+    return self.id
+  
   def get_threads(self):
     """
     Returns a list of threads in the forum, in the order that they were published.
@@ -27,7 +31,7 @@ class Forum(Base):
     Forum threads are stored in the order that they are published.
     Returns the new thread.
     """
-    thread = Thread(title, first_post)
+    thread = Thread(title, first_post, self.get_id())
     return thread
   
   def search_by_tag(self, tag):
