@@ -2,10 +2,8 @@ from exceptions import PermissionDenied
 from forum import Forum
 from thread import Thread, ThreadPostLink
 from post import Post, PostUpvotes
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from user import User
-from base import Base
+from setup import session
 
 
 # You can put any testing code (that won't be run by the marker)
@@ -15,10 +13,6 @@ from base import Base
 if __name__ == '__main__':
   # Test your code here. This will not be checked by the marker.
   # Here is the example from the question.
-  engine = create_engine("sqlite:///forum.db")
-  Session = sessionmaker(bind=engine)
-  session = Session()
-  Base.metadata.create_all(engine)
   forum = Forum()
   caesar = User('caesar@rome.com', 'venividivici7', 'Julius', 'Caesar', 1, 7, 12) #technically born 100 BC but that doesn't work
   cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
@@ -33,9 +27,15 @@ if __name__ == '__main__':
   first_post = Post('Veni, vidi, vici!', caesar)
   session.add(first_post)
   session.flush()
+  session.commit()
+  print(first_post.get_content(), first_post.get_author(), first_post.get_id())
 
+  #re-open first_post
+  first_post_temp = session.query(Post).filter_by(id=first_post.get_id()).first()
+  print(first_post_temp.get_id())
   thread = forum.publish('Battle of Zela', first_post, caesar)
   session.add(thread)
+  print(thread.get_posts())
   session.flush()
   thread.set_tags(['battle', 'brag'], caesar)
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
   for post in posts:
     session.add(post)
     session.flush()  
-    thread.publish_post(post, session)
+    thread.publish_post(post)
 
   session.commit()  
 

@@ -20,14 +20,13 @@ class Forum(Base):
     threads = select(Thread).where(Thread.forum_id == self.id)
     return threads
   
-  def publish(self, title, content, author):
+  def publish(self, title, first_post, author):
     """
     Creates a new thread with the given title and adds it to the forum.
     The content and author are provided to allow you to create the first post object.
     Forum threads are stored in the order that they are published.
     Returns the new thread.
     """
-    first_post = Post(content, author)
     thread = Thread(title, first_post)
     return thread
   

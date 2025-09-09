@@ -6,33 +6,43 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.sql import func
 from datetime import datetime
+from setup import session
+from user import User
+from post import Post
 
 class ThreadPostLink(Base):
   __tablename__ = "threadpostlink"
   threadid: Mapped[int] = mapped_column(ForeignKey("thread.id"), primary_key=True)
   postid: Mapped[int] = mapped_column(ForeignKey("post.id"), primary_key=True)
-
+  def __init__(self, threadid, postid):
+    self.threadid = threadid
+    self.postid = postid
 
 class Thread(Base):
   __tablename__ = "thread"
   
   id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   title: Mapped[str]
-  owner: Mapped[str]
+  owner: Mapped[int]
   tags: Mapped[Optional[str]] = mapped_column(default=None)
   created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
   first_post: Mapped[int] = mapped_column(ForeignKey("post.id"))
 
   def __init__(self, title, first_post):
     self.title = title
-    self.first_post = first_post.id
+    self.first_post = first_post.get_id()
     self.owner = first_post.get_author()
+    print(first_post)
+    print(first_post.get_id())
 
   def get_owner(self):
     """
     Returns the owner of the thread.
     """
     return self.owner
+  
+  def get_id(self):
+    return self.id 
   
   def get_title(self):
     """
@@ -48,28 +58,27 @@ class Thread(Base):
       return []
     return sorted(set(tag.strip() for tag in self.tags.split(",") if tag.strip()))
   
-  def get_posts(self,session):
+  def get_posts(self):
     """
     Returns a list of posts in this thread, in the order they were published.
     """
-    from post import Post
-    query = select(Post).join(ThreadPostLink, ThreadPostLink.postid == Post.id).where(ThreadPostLink.threadid == self.id).order_by(Post.date)
+    query = select(Post).join(Thread.threadid).where(ThreadPostLink.threadid == self.id).order_by(Post.date)
     return session.execute(query).scalars().all()
   
-  def publish_post(self, post, session):
+  def publish_post(self, post):
     """
     Adds the given post object into the list of posts.
     """
     print(f"PostID: {post.id}, PostDT: {post.date}")
     print(f"SelfID: {self.id}")
-    query = select(ThreadPostLink).where(ThreadPostLink.threadid == self.id).where(ThreadPostLink.postid == post.id)
+    query = select(ThreadPostLink).where(ThreadPostLink.threadid == self.id, ThreadPostLink.postid == post.id)
     existing = session.execute(query).scalar_one_or_none()
 
     if not existing:
       link = ThreadPostLink(threadid = self.id, postid=post.id)
       session.add(link)
   
-  def remove_post(self, post, by_user, session):
+  def remove_post(self, post, by_user):
     """
     Allows the given user to remove the post from this thread.
     Does nothing if the post is not in this thread.

@@ -35,11 +35,14 @@ class Post(Base):
     self.content = content
     self.author = author.get_id()
   
+  def get_id(self):
+    return self.id
+  
   def get_author(self):
     """
-    Returns the author of the post (user object)
+    Returns the author of the post (user id)
     """
-    return select(User).where(User.id == self.author)
+    return self.author
   
   def get_content(self):
     """
