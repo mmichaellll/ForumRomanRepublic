@@ -2,6 +2,7 @@ from exceptions import PermissionDenied
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 from sqlalchemy import ForeignKey, DateTime
 from base import Base
+from user import User
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.sql import func
@@ -26,7 +27,9 @@ class Thread(Base):
   def __init__(self, title, first_post):
     self.title = title
     self.first_post = first_post.id
-    self.owner = first_post.get_author()
+    self.owner = first_post.get_author().get_id()
+    # get author gives user id and user obj
+    # owner = index 0
 
   def get_owner(self):
     """
