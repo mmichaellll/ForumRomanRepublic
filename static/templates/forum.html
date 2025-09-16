@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block main %}
+    <p>Home page</p>
+
+    <h1 class="page_title"> Forum </h1>
+    <h2 class="user_name"></h2>
+
+    {% for post in threads %}
+        <a href="https://www.{{post.id}}.com" class="post_link"> post.title </a>
+    {% endfor %}
+
+
+
+{% endblock %}
