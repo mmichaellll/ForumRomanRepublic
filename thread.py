@@ -59,7 +59,7 @@ class Thread(Base):
       return []
     return sorted(set(tag.strip() for tag in self.tags.split(",") if tag.strip()))
   
-  def get_posts(self, session): # quer
+  def get_posts(self, session): # query broken
     """
     Returns a list of posts in this thread, in the order they were published.
     """
