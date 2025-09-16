@@ -52,7 +52,11 @@ class Forum(Base):
     """
     matching_posts = []
     for thread in self.get_threads(session):
-      posts = thread.get_posts()
+      print(thread)
+      print(type(thread))
+      posts = thread.get_posts(session)
+      print(posts)
+      print(type(posts))
       for post in posts:
         post_author = post.get_author()
         if post_author == author:
