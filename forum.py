@@ -8,27 +8,29 @@ from post import Post
 class Forum(Base):
   __tablename__ = 'forum'
 
-  id: Mapped[int] = mapped_column(primary_key=True)
+  id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
   title: Mapped[str]
   def __init__(self, title='forum'):
     self.title = title
 
-  def get_threads(self):
+  def get_id(self):
+    return self.id
+  
+  def get_threads(self, session):
     """
     Returns a list of threads in the forum, in the order that they were published.
     """
-    threads = select(Thread).where(Thread.forum_id == self.id)
+    threads = session.execute(select(Thread).where(Thread.forum_id == self.id)).all()
     return threads
   
-  def publish(self, title, content, author):
+  def publish(self, title, first_post, author):
     """
     Creates a new thread with the given title and adds it to the forum.
     The content and author are provided to allow you to create the first post object.
     Forum threads are stored in the order that they are published.
     Returns the new thread.
     """
-    first_post = Post(content, author)
-    thread = Thread(title, first_post)
+    thread = Thread(title, first_post, self.get_id())
     return thread
   
   def search_by_tag(self, tag):
@@ -43,16 +45,20 @@ class Forum(Base):
         matching_threads.append(thread)
     return matching_threads
   
-  def search_by_author(self, author):
+  def search_by_author(self, author, session):
     """
     Searches all forum threads for posts by the given author.
     Returns a list of matching post objects in any order you like. (currently works oldest -> newest)
     """
     matching_posts = []
-    for thread in self.get_threads():
-      posts = thread.get_posts()
+    for thread in self.get_threads(session):
+      print(thread)
+      print(type(thread))
+      posts = thread.get_posts(session)
+      print(posts)
+      print(type(posts))
       for post in posts:
         post_author = post.get_author()
-        if post_author == author:
+        if post_author == author.get_id():
           matching_posts.append(post)
     return matching_posts

@@ -35,11 +35,14 @@ class Post(Base):
     self.content = content
     self.author = author.get_id()
   
+  def get_id(self):
+    return self.id
+  
   def get_author(self):
     """
-    Returns the author of the post (user object)
+    Returns the author of the post (user id)
     """
-    return select(User).where(User.id == self.author)
+    return self.author
   
   def get_content(self):
     """
@@ -59,7 +62,7 @@ class Post(Base):
     Called when the given user wants to update the content.
     * raises PermissionDenied if the given user is not the author.
     """
-    if by_user == self.get_author():
+    if by_user.get_id() == self.get_author():
       self.content = content
       return "Changed Content"
     else:
@@ -70,7 +73,7 @@ class Post(Base):
     Called when the given user wants to upvote this post.
     A user can only perform an up vote *once*.
     """
-    status = select(PostUpvotes).where(PostUpvotes.post_id == self.id, PostUpvotes.user_id == by_user)
+    status = select(PostUpvotes).where(PostUpvotes.post_id == self.id, PostUpvotes.user_id == by_user.get_id())
     if status:
       return "Already upvoted this post"
     else:

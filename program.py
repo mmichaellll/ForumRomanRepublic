@@ -2,11 +2,11 @@ from exceptions import PermissionDenied
 from forum import Forum
 from thread import Thread, ThreadPostLink
 from post import Post, PostUpvotes
+from user import User
+from forum import Forum
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from user import User
 from base import Base
-
 
 # You can put any testing code (that won't be run by the marker)
 # in the block below.
@@ -24,6 +24,7 @@ if __name__ == '__main__':
   cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
   brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
   session.add_all([caesar, cleopatra, brutus])
+  session.add(forum)
   session.flush()
 
   #re-make users to get ids and stuff
@@ -33,9 +34,15 @@ if __name__ == '__main__':
   first_post = Post('Veni, vidi, vici!', caesar)
   session.add(first_post)
   session.flush()
+  session.commit()
+  print(first_post.get_content(), first_post.get_author(), first_post.get_id())
 
+  #re-open first_post
+  first_post_temp = session.query(Post).filter_by(id=first_post.get_id()).first()
+  print(first_post_temp.get_id())
   thread = forum.publish('Battle of Zela', first_post, caesar)
   session.add(thread)
+  print(thread.get_posts(session))
   session.flush()
   thread.set_tags(['battle', 'brag'], caesar)
 
@@ -53,7 +60,7 @@ if __name__ == '__main__':
   session.commit()  
 
   print("The contents of Caesar's posts:")
-  caesar_posts = forum.search_by_author('Caesar')
+  caesar_posts = forum.search_by_author(caesar, session)
   print(sorted([p.get_content() for p in caesar_posts]))
   print()
 
