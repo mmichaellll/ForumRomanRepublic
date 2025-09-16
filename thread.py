@@ -59,7 +59,7 @@ class Thread(Base):
       return []
     return sorted(set(tag.strip() for tag in self.tags.split(",") if tag.strip()))
   
-  def get_posts(self, session):
+  def get_posts(self, session): # quer
     """
     Returns a list of posts in this thread, in the order they were published.
     """
@@ -79,7 +79,7 @@ class Thread(Base):
       link = ThreadPostLink(threadid = self.id, postid=post.id)
       session.add(link)
   
-  def remove_post(self, post, by_user):
+  def remove_post(self, post, by_user, session):
     """
     Allows the given user to remove the post from this thread.
     Does nothing if the post is not in this thread.
