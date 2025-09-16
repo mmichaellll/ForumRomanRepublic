@@ -20,27 +20,49 @@ if __name__ == '__main__':
   session = Session()
   Base.metadata.create_all(engine)
   forum = Forum()
-  thread = forum.publish('Battle of Zela', 'Veni, vidi, vici!', 'Caesar')
-  thread.set_tags(['battle', 'brag'], 'Caesar')
-  thread.publish_post(Post('That was quick!', 'Amantius'),session)
-  thread.publish_post(Post('Hardly broke a sweat.', 'Caesar'),session)
-  thread.publish_post(Post('Any good loot?', 'Amantius'),session)
+  caesar = User('caesar@rome.com', 'venividivici7', 'Julius', 'Caesar', 1, 7, 12) #technically born 100 BC but that doesn't work
+  cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
+  brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
+  session.add_all([caesar, cleopatra, brutus])
+  session.flush()
 
-  # Search by author
+  #re-make users to get ids and stuff
+  caesar = session.query(User).filter_by(lname="Caesar").first()
+  cleopatra = session.query(User).filter_by(fname='Cleopatra').first()
+  brutus = session.query(User).filter_by(lname='Brutus').first()
+  first_post = Post('Veni, vidi, vici!', caesar)
+  session.add(first_post)
+  session.flush()
+
+  thread = forum.publish('Battle of Zela', first_post, caesar)
+  session.add(thread)
+  session.flush()
+  thread.set_tags(['battle', 'brag'], caesar)
+
+  thread.publish_post(first_post, session)
+
+  posts = [
+    Post('Hardly broke a sweat.', caesar),
+    Post('I\'m Cleopatra', cleopatra)
+  ]
+  for post in posts:
+    session.add(post)
+    session.flush()  
+    thread.publish_post(post, session)
+
+  session.commit()  
+
   print("The contents of Caesar's posts:")
   caesar_posts = forum.search_by_author('Caesar')
   print(sorted([p.get_content() for p in caesar_posts]))
   print()
 
-  # Edit content of an existing post
-  existing = thread.get_posts()[0]
-  existing.set_content('I came, I saw, I conquered!', 'Caesar')
+  existing = thread.get_posts(session)[0]
+  existing.set_content('I came, I saw, I conquered!', caesar)
 
-  # Upvote a post:
-  existing.upvote('Cleopatra')
-  existing.upvote('Brutus')
-  existing.upvote('Amantius')
-  existing.upvote('Cleopatra')
+  existing.upvote(cleopatra)
+  existing.upvote(brutus)
+  existing.upvote(cleopatra)
 
 
 
@@ -52,6 +74,6 @@ if __name__ == '__main__':
 
   # And some access control:
   try:
-    thread.set_title('Hijacked!', 'Cleopatra')
+    thread.set_title('Hijacked!', cleopatra)
   except PermissionDenied:
     print('Cleopatra was not allowed to hijack the thread.')
