@@ -60,7 +60,7 @@ if __name__ == '__main__':
   session.commit()  
 
   print("The contents of Caesar's posts:")
-  caesar_posts = forum.search_by_author('Caesar', session)
+  caesar_posts = forum.search_by_author(caesar, session)
   print(sorted([p.get_content() for p in caesar_posts]))
   print()
 

@@ -59,6 +59,6 @@ class Forum(Base):
       print(type(posts))
       for post in posts:
         post_author = post.get_author()
-        if post_author == author:
+        if post_author == author.get_id():
           matching_posts.append(post)
     return matching_posts

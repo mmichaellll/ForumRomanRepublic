@@ -63,7 +63,7 @@ class Thread(Base):
     """
     Returns a list of posts in this thread, in the order they were published.
     """
-    query = select(Post).join(Thread).where(ThreadPostLink.threadid == self.id).order_by(Post.date)
+    query = select(ThreadPostLink).join(Post).where(ThreadPostLink.threadid == self.id).order_by(Post.date)
     return session.execute(query).scalars().all()
   
   def publish_post(self, post, session):
