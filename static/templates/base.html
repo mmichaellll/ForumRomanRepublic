@@ -1,7 +1,49 @@
 <!DOCTYPE html>
 <html>
+
+    <head>
+        <link rel="stylesheet" href="/static/styles.css">
+
+    </head>
+
+
+    <div id="background"></div>
+
+
     <h1>Forum of the Roman Rebublic</h1>
-    {% block main %}
-        <p>Stuff here</p>
-    {% endblock %}
+
+    <div id="username"> 
+        <h1>{{ username }}</h1>
+    </div>
+
+    <div id="scroll">
+        {% block main %}
+            <p>Stuff here</p>
+
+        {% endblock %}
+    </div>
+
+
+
 </html>
+
+
+
+<!-- {% macro post() %}
+
+
+{% endmacro %} -->
+
+
+<!-- {% macro thread() %}
+
+{% endmacro %}
+
+
+{% macro forum() %}
+
+{% endmacro %} -->
+
+
+
+
