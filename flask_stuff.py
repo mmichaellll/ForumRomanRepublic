@@ -9,10 +9,12 @@ app.secret_key = 'secret key'
 app.permanent_session_lifetime = timedelta(minutes=60)  # Set session timeout 
 
 
+
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if session["user"] == None:
+        if session.get("user") == None:
             return redirect("/register")
         return f(*args, **kwargs)
     return decorated_function
